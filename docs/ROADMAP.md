@@ -1,6 +1,6 @@
-# Project Execution Roadmap: Phases 1 to 6
+# AlphaScribe AI: Project Execution Roadmap (Phases 1 to 6)
 
-This document defines the step-by-step development roadmap for the **Multi-Agent Financial/Market Research Analyst** system.
+This document defines the step-by-step development roadmap for **AlphaScribe AI**.
 
 ---
 

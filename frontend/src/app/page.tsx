@@ -205,7 +205,7 @@ Disclosures audited from Item 7 (MD&A) confirm sustained demand for subscription
             </span>
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight text-white mt-2">
-            Financial & Market Research Analyst
+            AlphaScribe AI
           </h1>
           <p className="text-gray-400 text-sm mt-1">
             Autonomous multi-agent research team synthesizing verifiable 10-K investment memos with zero math hallucinations.

@@ -1,4 +1,4 @@
-# System Architecture & Design
+# AlphaScribe AI: System Architecture & Design
 
 ## 1. High-Level Architecture Flow
 

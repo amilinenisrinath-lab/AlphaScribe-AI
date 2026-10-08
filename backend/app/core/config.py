@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "Multi-Agent Financial Research Analyst"
+    PROJECT_NAME: str = "AlphaScribe AI"
     DEBUG: bool = True
 
     # Database

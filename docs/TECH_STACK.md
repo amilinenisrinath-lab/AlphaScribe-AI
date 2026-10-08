@@ -1,7 +1,7 @@
-# Project Tech Stack & Justification
+# AlphaScribe AI: Tech Stack & System Rationale
 
 ## System Overview
-The **Multi-Agent Financial/Market Research Analyst** is a full-stack, enterprise-grade AI system. It automates financial document parsing (10-K, 10-Q, earnings calls), quantitative market ratio extraction, cross-document verification, and Wall Street-style investment memo synthesis.
+**AlphaScribe AI** is a full-stack, enterprise-grade autonomous investment research platform. It automates financial document parsing (10-K, 10-Q, earnings calls), quantitative market ratio extraction, cross-document verification, and Wall Street-style investment memo synthesis.
 
 ---
 
