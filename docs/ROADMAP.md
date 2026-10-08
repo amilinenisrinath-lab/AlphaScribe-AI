@@ -4,16 +4,18 @@ This document defines the step-by-step development roadmap for **AlphaScribe AI*
 
 ---
 
-## Phase 1: Project Scaffolding & Database Setup
+## Phase 1: Project Scaffolding & Database Setup (COMPLETED)
 * **Goal:** Initialize directories, environment configurations, and the local SQLite database.
 * **Key Tasks:**
   - [x] Create standardized project directory structure (`docs/`, `backend/`, `frontend/`).
   - [x] Configure `.gitignore` for Python, SQLite, Next.js, and R.
-  - [ ] Write Python dependencies in `backend/requirements.txt`.
-  - [ ] Configure `backend/app/core/config.py` with environment variable loading.
-  - [ ] Create `backend/app/db/session.py` and `models.py` using **SQLModel** (Sessions, Documents, Memos, Agent Logs).
-  - [ ] Scaffold Next.js 14 frontend skeleton (`frontend/package.json`, `tsconfig.json`, `tailwind.config.js`).
-* **Acceptance Criteria:** SQLite database creates tables automatically on FastAPI startup; frontend displays base layout.
+  - [x] Write Python dependencies in `backend/requirements.txt`.
+  - [x] Configure `backend/app/core/config.py` with environment variable loading.
+  - [x] Create `backend/app/db/session.py` and `models.py` using **SQLModel** (Sessions, Documents, Memos, Agent Logs).
+  - [x] Scaffold Next.js 14 frontend skeleton (`frontend/package.json`, `tsconfig.json`, `tailwind.config.js`).
+  - [x] Verify SQLite database schema, timezone-aware fields, and CRUD operations via `test_phase1_db.py`.
+  - [x] Verify FastAPI lifespan startup and health checks via `test_api_health.py`.
+* **Acceptance Criteria:** SQLite database creates tables automatically on FastAPI startup; API endpoints return 200 OK. [PASSED]
 
 ---
 

@@ -1,7 +1,10 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, List
 from sqlmodel import SQLModel, Field, Relationship
+
+def get_utc_now() -> datetime:
+    return datetime.now(timezone.utc)
 
 class ResearchSession(SQLModel, table=True):
     __tablename__ = "research_sessions"
@@ -10,8 +13,8 @@ class ResearchSession(SQLModel, table=True):
     ticker: str = Field(index=True)
     query: Optional[str] = Field(default=None)
     status: str = Field(default="PENDING")  # PENDING, IN_PROGRESS, COMPLETED, FAILED
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=get_utc_now)
+    updated_at: datetime = Field(default_factory=get_utc_now)
 
     documents: List["FinancialDocument"] = Relationship(back_populates="session")
     memos: List["InvestmentMemo"] = Relationship(back_populates="session")
@@ -28,7 +31,7 @@ class FinancialDocument(SQLModel, table=True):
     file_type: str = Field(default="PDF")
     total_pages: int = Field(default=0)
     chunk_count: int = Field(default=0)
-    uploaded_at: datetime = Field(default_factory=datetime.utcnow)
+    uploaded_at: datetime = Field(default_factory=get_utc_now)
 
     session: Optional[ResearchSession] = Relationship(back_populates="documents")
 
@@ -44,7 +47,7 @@ class InvestmentMemo(SQLModel, table=True):
     status: str = Field(default="DRAFT")  # DRAFT, VERIFIED, REJECTED
     chart_paths_json: Optional[str] = Field(default="[]")  # Serialized list of chart URLs/paths
     citations_json: Optional[str] = Field(default="[]")    # Serialized citations mapping
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=get_utc_now)
 
     session: Optional[ResearchSession] = Relationship(back_populates="memos")
 
@@ -57,6 +60,6 @@ class AgentAuditLog(SQLModel, table=True):
     agent_name: str
     action: str
     details: Optional[str] = Field(default=None)
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=get_utc_now)
 
     session: Optional[ResearchSession] = Relationship(back_populates="logs")

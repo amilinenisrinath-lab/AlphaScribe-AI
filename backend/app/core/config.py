@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     DEBUG: bool = True
 
     # Database
-    DATABASE_URL: str = f"sqlite:///{BASE_DIR}/data/app.db"
+    DATABASE_URL: str = f"sqlite:///{(BASE_DIR / 'data' / 'app.db').as_posix()}"
 
     # API Keys
     OPENAI_API_KEY: str = ""
