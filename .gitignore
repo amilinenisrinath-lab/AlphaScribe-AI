@@ -30,10 +30,13 @@ wheels/
 *.sqlite
 
 # Data & outputs
+data/
 backend/data/uploads/*
 !backend/data/uploads/.gitkeep
 backend/data/outputs/*
 !backend/data/outputs/.gitkeep
+**/qdrant_storage/
+*.pdf
 
 # Node / Next.js
 node_modules/

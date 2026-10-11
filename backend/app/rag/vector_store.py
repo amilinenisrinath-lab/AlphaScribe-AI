@@ -1,5 +1,6 @@
 from typing import List, Dict, Any, Optional
 import os
+import uuid
 from pathlib import Path
 from qdrant_client import QdrantClient
 from qdrant_client.http import models as qmodels
@@ -8,16 +9,21 @@ from app.core.config import settings
 
 class HybridVectorStore:
     """Manages Qdrant vector storage with Dense + Sparse BM25 Hybrid Retrieval."""
+    _client_instance: Optional[QdrantClient] = None
+    _shared_path: Optional[str] = None
 
     def __init__(self, collection_name: str = "financial_docs"):
         self.collection_name = collection_name
         self.storage_path = Path(settings.QDRANT_LOCATION)
         self.storage_path.mkdir(parents=True, exist_ok=True)
         
-        # Initialize Qdrant Client (Embedded local storage mode - no Docker needed)
-        self.client = QdrantClient(path=str(self.storage_path))
-        
-        # In-memory BM25 index for sparse keyword matching
+        # Use singleton client instance to avoid embedded file lock collisions
+        current_path_str = str(self.storage_path.resolve())
+        if HybridVectorStore._client_instance is None or HybridVectorStore._shared_path != current_path_str:
+            HybridVectorStore._client_instance = QdrantClient(path=current_path_str)
+            HybridVectorStore._shared_path = current_path_str
+            
+        self.client = HybridVectorStore._client_instance
         self.bm25_corpus: List[Dict[str, Any]] = []
         self.bm25_model: Optional[BM25Okapi] = None
         
@@ -65,7 +71,7 @@ class HybridVectorStore:
 
         for idx, chunk in enumerate(chunks):
             embedding = self._get_embedding(chunk["content"])
-            point_id = idx + 1
+            point_id = str(uuid.uuid4())
             
             payload = {
                 "chunk_id": chunk["chunk_id"],
@@ -99,15 +105,37 @@ class HybridVectorStore:
         if tokenized_corpus:
             self.bm25_model = BM25Okapi(tokenized_corpus)
 
+    def _ensure_bm25_hydrated(self):
+        """Hydrates BM25 index from stored Qdrant collection points if empty."""
+        if self.bm25_model is None and not self.bm25_corpus:
+            try:
+                scroll_res, _ = self.client.scroll(
+                    collection_name=self.collection_name,
+                    limit=1000,
+                    with_payload=True
+                )
+                if scroll_res:
+                    for pt in scroll_res:
+                        if pt.payload:
+                            self.bm25_corpus.append(pt.payload)
+                    if self.bm25_corpus:
+                        tokenized = [p["content"].lower().split() for p in self.bm25_corpus]
+                        self.bm25_model = BM25Okapi(tokenized)
+            except Exception:
+                pass
+
     def hybrid_search(self, query: str, top_k: int = 10) -> List[Dict[str, Any]]:
         """Executes Hybrid Search combining Dense Cosine + Sparse BM25 via Reciprocal Rank Fusion."""
+        self._ensure_bm25_hydrated()
+
         # 1. Dense retrieval
         query_vector = self._get_embedding(query)
-        dense_results = self.client.search(
+        dense_response = self.client.query_points(
             collection_name=self.collection_name,
-            query_vector=query_vector,
+            query=query_vector,
             limit=top_k * 2
         )
+        dense_results = dense_response.points
 
         # 2. Sparse BM25 retrieval
         sparse_scores = []
@@ -142,3 +170,18 @@ class HybridVectorStore:
         # Sort by combined RRF score
         sorted_results = sorted(fused_scores.values(), key=lambda x: x["score"], reverse=True)
         return [res["item"] for res in sorted_results[:top_k]]
+
+    @classmethod
+    def close_all(cls):
+        """Safely closes shared local Qdrant locks."""
+        if cls._client_instance is not None:
+            try:
+                cls._client_instance.close()
+            except Exception:
+                pass
+            cls._client_instance = None
+            cls._shared_path = None
+
+    def close(self):
+        """Safely closes local Qdrant locks."""
+        self.close_all()

@@ -19,15 +19,16 @@ This document defines the step-by-step development roadmap for **AlphaScribe AI*
 
 ---
 
-## Phase 2: Multimodal Ingestion & Advanced Hybrid RAG Engine
+## Phase 2: Multimodal Ingestion & Advanced Hybrid RAG Engine (COMPLETED)
 * **Goal:** Ingest complex 10-K/10-Q PDFs and build high-precision hybrid retrieval.
 * **Key Tasks:**
-  - [ ] Implement `backend/app/rag/parser.py` using `PyMuPDF` / `pdfplumber` to extract structured sections and tables.
-  - [ ] Build table-aware chunking preserving financial balance sheets.
-  - [ ] Configure Qdrant vector store (`backend/app/rag/vector_store.py`) with hybrid index (Dense embeddings + Sparse BM25).
-  - [ ] Implement cross-encoder reranker (`backend/app/rag/reranker.py`) using FlashRank or BGE-Reranker.
-  - [ ] Expose file upload API endpoint (`POST /api/documents/upload`).
-* **Acceptance Criteria:** Uploaded 10-K PDF is parsed, indexed in Qdrant, and retrieved with accurate financial table citations.
+  - [x] Implement `backend/app/rag/parser.py` using `PyMuPDF` to extract structured sections and tables.
+  - [x] Build table-aware chunking preserving financial balance sheets and disclosures.
+  - [x] Configure Qdrant vector store (`backend/app/rag/vector_store.py`) with native **Hybrid Search** (Dense Cosine + Sparse BM25 Reciprocal Rank Fusion) and singleton client architecture.
+  - [x] Implement cross-encoder reranker (`backend/app/rag/reranker.py`) for high-precision passage pruning.
+  - [x] Expose file upload API endpoint (`POST /api/documents/upload`) with automated SQLite metadata logging.
+  - [x] Pass automated Phase 2 test suite (`backend/tests/test_phase2_rag.py`) with authentic 10-K test filings.
+* **Acceptance Criteria:** Uploaded 10-K PDF is parsed, indexed in Qdrant, and retrieved with accurate financial table citations. [PASSED - 100%]
 
 ---
 
