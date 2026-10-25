@@ -12,25 +12,29 @@ def supervisor_node(state: AgentState) -> Dict[str, Any]:
 def route_next_step(state: AgentState) -> str:
     """Routing logic for LangGraph conditional edges."""
     node_history = state.get("node_history", [])
-    
-    # 1. First step: Research 10-K disclosures
-    if "researcher" not in node_history:
+    worker_history = [n for n in node_history if n != "supervisor"]
+    last_worker = worker_history[-1] if worker_history else None
+
+    # 1. Sequential pipeline execution
+    if "researcher" not in worker_history:
         return "researcher"
     
-    # 2. Second step: Quantitative market analysis & R chart
-    if "analyst" not in node_history:
+    if "analyst" not in worker_history:
         return "analyst"
 
-    # 3. Third step: Synthesize investment memo
-    if "writer" not in node_history:
+    if "writer" not in worker_history:
         return "writer"
 
-    # 4. Fourth step: Fact check
-    if "fact_checker" not in node_history:
+    if "fact_checker" not in worker_history:
         return "fact_checker"
 
-    # 5. Review feedback loop
+    # 2. Cyclical verification loop
     if state.get("verification_status") == "REVISION_REQUESTED":
-        return "writer"
+        # If fact-checker rejected claims, route back to writer for revisions
+        if last_worker == "fact_checker":
+            return "writer"
+        # If writer just revised draft, route back to fact-checker to re-audit
+        elif last_worker == "writer":
+            return "fact_checker"
 
     return "end"

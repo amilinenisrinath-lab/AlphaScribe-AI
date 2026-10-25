@@ -44,18 +44,19 @@ This document defines the step-by-step development roadmap for **AlphaScribe AI*
 
 ---
 
-## Phase 4: LangGraph Multi-Agent Orchestration
+## Phase 4: LangGraph Multi-Agent Orchestration (COMPLETED)
 * **Goal:** Assemble the multi-agent state machine with cyclical verification.
 * **Key Tasks:**
-  - [ ] Define state dictionary schema in `backend/app/agents/state.py` (`AgentState`).
-  - [ ] Implement node functions:
-    - `supervisor.py` (Orchestrates workflow, routes between nodes).
-    - `researcher.py` (Executes Hybrid RAG queries for 10-K disclosures).
-    - `analyst.py` (Runs financial tools, computes ratios, calls R plotting).
-    - `fact_checker.py` (Validates every numeric statement against retrieved chunks).
-    - `writer.py` (Drafts the structured Markdown investment memo).
-  - [ ] Compile LangGraph state graph in `backend/app/agents/graph.py` with cyclical loop-back for unverified assertions.
-* **Acceptance Criteria:** Given a ticker and question, agents collaborate autonomously to output a verified markdown investment memo.
+  - [x] Define state dictionary schema in `backend/app/agents/state.py` (`AgentState`).
+  - [x] Implement specialized agent node functions:
+    - `supervisor.py` (State-machine coordinator & dynamic routing logic).
+    - `researcher.py` (Hybrid RAG extraction of SEC 10-K disclosures & segment margins).
+    - `analyst.py` (Pulls live multiples, executes deterministic Python math, renders R charts).
+    - `writer.py` (Synthesizes institutional Markdown memos with citation links).
+    - `fact_checker.py` (Zero-hallucination verification audit against source chunks & arithmetic).
+  - [x] Compile cyclical state graph in `backend/app/agents/graph.py` with dynamic review loop for rejected assertions.
+  - [x] Pass automated Phase 4 test suite (`backend/tests/test_phase4_agents.py`) verifying individual nodes, cyclical guardrails, and full workflow execution.
+* **Acceptance Criteria:** Given a ticker and question, agents collaborate autonomously to output a verified markdown investment memo. [PASSED - 100%]
 
 ---
 
