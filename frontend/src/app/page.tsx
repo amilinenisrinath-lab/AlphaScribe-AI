@@ -12,7 +12,7 @@ import {
 import { AgentTimeline, AgentStatus } from "@/components/AgentTimeline";
 import { FinancialCharts } from "@/components/FinancialCharts";
 import { MemoViewer } from "@/components/MemoViewer";
-import { API_BASE_URL, createSession } from "@/lib/api";
+import { API_BASE_URL, createSession, uploadDocument } from "@/lib/api";
 
 const initialAgents: AgentStatus[] = [
   { name: "Supervisor Node", role: "Directs research graph & checks exit criteria", status: "idle" },
@@ -25,6 +25,7 @@ const initialAgents: AgentStatus[] = [
 export default function Home() {
   const [ticker, setTicker] = useState("AAPL");
   const [query, setQuery] = useState("Analyze Services segment margin expansion and 5-year revenue trajectory.");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [agents, setAgents] = useState<AgentStatus[]>(initialAgents);
   const [memoMarkdown, setMemoMarkdown] = useState<string>("");
@@ -47,6 +48,17 @@ export default function Home() {
     try {
       // 1. Create Session in SQLite
       const session = await createSession(ticker, query);
+
+      // 2. Upload document if selected
+      if (selectedFile) {
+        setStatusText(`Indexing ${selectedFile.name} into Qdrant Hybrid Vector Store...`);
+        try {
+          await uploadDocument(session.id, selectedFile);
+          setStatusText("Document successfully indexed. Launching agent team...");
+        } catch (uploadErr) {
+          console.warn("Upload fallback: Using embedded SEC disclosures.", uploadErr);
+        }
+      }
 
       // 2. Connect to Server-Sent Events (SSE) Stream
       const streamUrl = `${API_BASE_URL}/api/analyze/stream?session_id=${session.id}&ticker=${encodeURIComponent(
@@ -259,6 +271,32 @@ Disclosures audited from Item 7 (MD&A) confirm sustained demand for subscription
                 className="w-full bg-gray-950 border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 resize-none"
                 placeholder="Enter specific guidance for the analyst team..."
               />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-300 mb-1">
+                Upload SEC 10-K / 10-Q (PDF)
+              </label>
+              <label className="border-2 border-dashed border-gray-800 hover:border-gray-700 rounded-lg p-3 text-center cursor-pointer flex flex-col items-center justify-center transition bg-gray-950/40">
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      setSelectedFile(e.target.files[0]);
+                    }
+                  }}
+                />
+                <FileText className="w-5 h-5 text-gray-500 mb-1" />
+                <span className="text-xs text-gray-400">
+                  {selectedFile ? (
+                    <span className="text-blue-400 font-semibold">{selectedFile.name}</span>
+                  ) : (
+                    "Select earnings report or use baseline"
+                  )}
+                </span>
+              </label>
             </div>
 
             <div className="pt-2">

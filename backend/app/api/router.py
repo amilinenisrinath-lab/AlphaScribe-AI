@@ -115,9 +115,12 @@ async def stream_analysis(
         yield f"data: {json.dumps({'event': 'start', 'message': f'Initializing research team for {ticker.upper()}...'})}\n\n"
         await asyncio.sleep(0.3)
 
+        accumulated_state = dict(initial_state)
+
         # Stream LangGraph node steps
         for step_output in research_app.stream(initial_state):
             for node_name, node_state in step_output.items():
+                accumulated_state.update(node_state)
                 node_message = f"Agent [{node_name.upper()}] completed task."
                 if node_name == "researcher":
                     chunk_count = len(node_state.get("retrieved_chunks", []))
@@ -132,13 +135,12 @@ async def stream_analysis(
                     node_message = f"Fact-Checker audit result: {v_status} (Zero Hallucination Guarantee)."
 
                 yield f"data: {json.dumps({'event': 'agent_step', 'node': node_name, 'message': node_message})}\n\n"
-                await asyncio.sleep(0.4)
+                await asyncio.sleep(0.3)
 
-        # Final state extraction
-        final_state = research_app.invoke(initial_state)
-        memo_content = final_state.get("draft_memo", "")
-        citations = final_state.get("citations", [])
-        chart_info = final_state.get("chart_info", {})
+        # Final state extraction from stream execution
+        memo_content = accumulated_state.get("draft_memo", "")
+        citations = accumulated_state.get("citations", [])
+        chart_info = accumulated_state.get("chart_info", {})
 
         # Persist memo to SQLite
         memo_record = InvestmentMemo(
@@ -146,7 +148,7 @@ async def stream_analysis(
             ticker=ticker.upper(),
             title=f"Investment Memo: {ticker.upper()}",
             markdown_content=memo_content,
-            status=final_state.get("verification_status", "VERIFIED"),
+            status=accumulated_state.get("verification_status", "VERIFIED"),
             chart_paths_json=json.dumps([chart_info.get("chart_path", "")]),
             citations_json=json.dumps(citations)
         )

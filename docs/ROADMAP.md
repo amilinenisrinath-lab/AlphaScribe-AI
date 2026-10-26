@@ -60,17 +60,17 @@ This document defines the step-by-step development roadmap for **AlphaScribe AI*
 
 ---
 
-## Phase 5: FastAPI Streaming API & Next.js UI
+## Phase 5: FastAPI Streaming API & Next.js UI (COMPLETED)
 * **Goal:** Connect backend and frontend via Server-Sent Events (SSE) and provide a polished UI.
 * **Key Tasks:**
-  - [ ] Build FastAPI SSE streaming endpoint (`GET /api/analyze/stream`).
-  - [ ] Develop Next.js dashboard UI:
+  - [x] Build FastAPI SSE streaming endpoint (`GET /api/analyze/stream`).
+  - [x] Develop Next.js dashboard UI:
     - File upload dropzone for financial reports.
     - Real-time agent status tracker (shows node steps, reasoning, and tool calls).
     - Interactive Memo viewer with markdown rendering, citation tooltips, and embedded R charts.
     - Client-side interactive stock charts using **Recharts**.
     - Export button for downloading PDF / Markdown reports.
-* **Acceptance Criteria:** Full end-to-end user flow working smoothly in the browser with real-time streaming.
+* **Acceptance Criteria:** Full end-to-end user flow working smoothly in the browser with real-time streaming verified via automated integration tests and Next.js production build.
 
 ---
 
