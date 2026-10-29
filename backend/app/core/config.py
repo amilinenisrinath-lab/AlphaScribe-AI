@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     LANGCHAIN_TRACING_V2: bool = False
     LANGCHAIN_ENDPOINT: str = "https://api.smith.langchain.com"
     LANGCHAIN_API_KEY: str = ""
-    LANGCHAIN_PROJECT: str = "financial-analyst-agent"
+    LANGCHAIN_PROJECT: str = "alphascribe-ai"
 
     model_config = SettingsConfigDict(
         env_file=str(BASE_DIR / ".env"),
@@ -37,6 +37,14 @@ class Settings(BaseSettings):
     )
 
 settings = Settings()
+
+# Configure LangSmith observability if enabled
+import os
+if settings.LANGCHAIN_TRACING_V2 and settings.LANGCHAIN_API_KEY:
+    os.environ["LANGCHAIN_TRACING_V2"] = "true"
+    os.environ["LANGCHAIN_ENDPOINT"] = settings.LANGCHAIN_ENDPOINT
+    os.environ["LANGCHAIN_API_KEY"] = settings.LANGCHAIN_API_KEY
+    os.environ["LANGCHAIN_PROJECT"] = settings.LANGCHAIN_PROJECT
 
 # Ensure directories exist
 settings.UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
